@@ -171,11 +171,4 @@ module.exports = function NpcLIST(mod) {
 	function gIndex(e) {
 		return object.npc.findIndex(o => o.gameId == e);
 	}
-	
-	function jsonSave(name, d) {fs.writeFile(path.join(__dirname, name), JSON.stringify(d, null, 4), err => {});}
-	
-	function jsonRequire(e) {
-		delete require.cache[require.resolve(e)];
-		return require(e);
-	}
 }
