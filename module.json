@@ -1,0 +1,12 @@
+{
+	"disableAutoUpdate": false,
+	"name": "NPC List",
+	"author": "Fukki",
+	"description": "List npc around you and let you find npc with select to mark.",
+	"version": "Kappa :v",
+	"options": {
+		"niceName": "NPC List"
+	},
+	"servers": ["https://raw.githubusercontent.com/Fukki/npc-list/master/"],
+	"supportUrl": "https://github.com/Fukki/npc-list/issues/"
+}
