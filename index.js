@@ -104,7 +104,6 @@ module.exports = function NpcLIST(mod) {
 				vert: Math.abs(e.loc.z - object.loc.z) / 25,
 				loc: e.loc
 			});
-			
 		}
 	});
 	
@@ -138,10 +137,10 @@ module.exports = function NpcLIST(mod) {
 		}
 	});
 	
-	function spawnMark(id, loc) {
+	function spawnMark(gid, loc) {
         loc.z -= 100;
 		mod.send('S_SPAWN_DROPITEM', 6, {
-			gameId: id,
+			gameId: gid,
 			loc: loc,
 			item: 98260, 
 			amount: 1,
