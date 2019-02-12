@@ -1,6 +1,6 @@
 module.exports = function NpcLIST(mod) {
 	const cmd = mod.command || mod.require.command, map = new WeakMap();
-	const path = jsonRequire('path'), fs = jsonRequire('fs');
+	const path = require('path'), fs = require('fs');
 	let object = [], TmpData = [], lastSelect = null;
 	
 	if (!map.has(mod.dispatch || mod)) {
