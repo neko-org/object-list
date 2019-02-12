@@ -1,7 +1,7 @@
 module.exports = function NpcLIST(mod) {
 	const cmd = mod.command || mod.require.command, map = new WeakMap();
 	const path = require('path'), fs = require('fs');
-	let object = [], TmpData = [], lastSelect = null;
+	let object = [], TmpData = [], sList = [];
 	
 	if (!map.has(mod.dispatch || mod)) {
 		map.set(mod.dispatch || mod, {});
@@ -40,14 +40,14 @@ module.exports = function NpcLIST(mod) {
 				break;
 			case 'justputmarkonnpc':
 				let d = null;
-				if (lastSelect) {
-					d = gData(lastSelect);
-					if (d) despawnMark(d.gameId);
-				}
-				d = gData(arg2);
-				if (d) {
-					lastSelect = arg2;
-					spawnMark(d.gameId, d.loc);
+				if (sData(arg2)) {
+					removedMark(arg2);
+				} else {
+					d = gData(arg2);
+					if (d) {
+						sList.push({gameId: arg2});
+						spawnMark(d.gameId, d.loc);
+					}
 				}
 				break;
 			default:
@@ -56,7 +56,7 @@ module.exports = function NpcLIST(mod) {
 				g.sort(function (a, b) {return parseFloat(a.dist) - parseFloat(b.dist);});
 				for (let n of g.slice(0, 50)) {
 					TmpData.push({
-						text: `<font color="${n.gameId == lastSelect ? '#4DE19C' : '#FE6F5E'}" size="+20">${n.huntingZoneId}_${n.templateId}\t-\t${n.relation}</font><br>`,
+						text: `<font color="${sData(n.gameId) ? '#4DE19C' : '#FE6F5E'}" size="+20">${n.huntingZoneId}_${n.templateId}\t-\t${n.relation}</font><br>`,
 						command: `npclist justputmarkonnpc ${n.gameId};npclist`
 					});
 				}
@@ -73,12 +73,12 @@ module.exports = function NpcLIST(mod) {
 	mod.hook('S_LOAD_TOPO', 3, e => {
 		object.zone = e.zone;
 		object.npc = [];
-		clearMark();
+		sList = [];
 	});
 	
 	mod.hook('S_RETURN_TO_LOBBY', 'raw', () => {
 		object.npc = [];
-		clearMark();
+		sList = [];
 	});
 	
 	mod.hook('S_SPAWN_ME', 3, e => {
@@ -124,17 +124,20 @@ module.exports = function NpcLIST(mod) {
 	mod.hook('S_DESPAWN_NPC', 3, e => {
 		let i = gIndex(e.gameId);
 		if (i >= 0) object.npc.splice(i, 1);
-		if (lastSelect == e.gameId)
-			clearMark();
+		if (sData(e.gameId)) removedMark(e.gameId);
 	});
 	
 	function clearMark() {
-		if (lastSelect) {
-			let d =  gData(lastSelect);
-			if (d) {
-				despawnMark(d.gameId);
-				lastSelect = null;
-			}
+		for(let n of sList)
+			removedMark(n.gameId);
+	}
+	
+	function removedMark(e) {
+		let i = sIndex(e);
+		let d = sData(e);
+		if (i >= 0) {
+			despawnMark(BigInt(d.gameId));
+			sList.splice(i, 1);
 		}
 	}
 	
@@ -159,7 +162,15 @@ module.exports = function NpcLIST(mod) {
 		mod.send('S_DESPAWN_DROPITEM', 4, {
 			gameId: id
 		});
-	}   
+	}
+
+	function sData(e) {
+		return sList.find(o => o.gameId == e);
+	}
+	
+	function sIndex(e) {
+		return sList.findIndex(o => o.gameId == e);
+	}
 
 	function gData(e) {
 		return object.npc.find(o => o.gameId == e);
