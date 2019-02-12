@@ -36,11 +36,7 @@ module.exports = function NpcLIST(mod) {
 		if(arg2 && arg2.length > 0) arg2 = arg2.toLowerCase();
 		switch (arg1) {
 			case 'clear':
-				if (lastSelect) {
-					let d = gData(lastSelect);
-					if (d) despawnMark(d.gameId);
-					lastSelect = null;
-				}
+				clearMark();
 				break;
 			case 'justputmarkonnpc':
 				let d = null;
@@ -77,12 +73,12 @@ module.exports = function NpcLIST(mod) {
 	mod.hook('S_LOAD_TOPO', 3, e => {
 		object.zone = e.zone;
 		object.npc = [];
-		lastSelect = null;
+		clearMark();
 	});
 	
 	mod.hook('S_RETURN_TO_LOBBY', 'raw', () => {
 		object.npc = [];
-		lastSelect = null;
+		clearMark();
 	});
 	
 	mod.hook('S_SPAWN_ME', 3, e => {
@@ -128,6 +124,11 @@ module.exports = function NpcLIST(mod) {
 	mod.hook('S_DESPAWN_NPC', 3, e => {
 		let i = gIndex(e.gameId);
 		if (i >= 0) object.npc.splice(i, 1);
+		if (lastSelect == e.gameId)
+			clearMark();
+	});
+	
+	function clearMark() {
 		if (lastSelect) {
 			let d =  gData(lastSelect);
 			if (d) {
@@ -135,10 +136,10 @@ module.exports = function NpcLIST(mod) {
 				lastSelect = null;
 			}
 		}
-	});
+	}
 	
 	function spawnMark(gid, loc) {
-        loc.z -= 100;
+		loc.z -= 100;
 		mod.send('S_SPAWN_DROPITEM', 6, {
 			gameId: gid,
 			loc: loc,
@@ -159,11 +160,7 @@ module.exports = function NpcLIST(mod) {
 			gameId: id
 		});
 	}   
-	
-	function s2n(e) {
-		return Number(e);
-	}
-	
+
 	function gData(e) {
 		return object.npc.find(o => o.gameId == e);
 	}
