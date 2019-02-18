@@ -1,12 +1,12 @@
 {
 	"disableAutoUpdate": false,
-	"name": "NPC List",
+	"name": "Object List",
 	"author": "Fukki",
-	"description": "List npc around you and let you find npc with select to mark.",
+	"description": "List Object around you and let you find with select to mark.",
 	"version": "Kappa :v",
 	"options": {
-		"niceName": "NPC List"
+		"niceName": "Object List"
 	},
-	"servers": ["https://raw.githubusercontent.com/Fukki/npc-list/master/"],
-	"supportUrl": "https://github.com/Fukki/npc-list/issues/"
+	"servers": ["https://raw.githubusercontent.com/Fukki/object-list/master/"],
+	"supportUrl": "https://github.com/Fukki/object-list/issues/"
 }

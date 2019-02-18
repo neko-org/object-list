@@ -1,7 +1,7 @@
 module.exports = function NpcLIST(mod) {
 	const cmd = mod.command || mod.require.command, map = new WeakMap();
 	const path = require('path'), fs = require('fs');
-	let object = [], TmpData = [], sList = [];
+	let object = [], TmpData = [];
 	
 	if (!map.has(mod.dispatch || mod)) {
 		map.set(mod.dispatch || mod, {});
@@ -45,18 +45,18 @@ module.exports = function NpcLIST(mod) {
 				} else {
 					d = gData(arg2);
 					if (d) {
-						sList.push({gameId: arg2});
+						object.mark.push({gameId: arg2});
 						spawnMark(d.gameId, d.loc);
 					}
 				}
 				break;
 			default:
 				TmpData = [];
-				let g = object.npc.filter(o => (o.dist <= 150 && o.vert >= -50 && o.vert <= 50));
+				let g = object.data.filter(o => (o.dist <= 150 && o.vert >= -50 && o.vert <= 50));
 				g.sort(function (a, b) {return parseFloat(a.dist) - parseFloat(b.dist);});
-				for (let n of g.slice(0, 50)) {
+				for (let n of g.slice(0, 100)) {
 					TmpData.push({
-						text: `<font color="${sData(n.gameId) ? '#4DE19C' : '#FE6F5E'}" size="+20">${n.huntingZoneId}_${n.templateId}\t-\t${n.relation}</font><br>`,
+						text: `<font color="${sData(n.gameId) ? '#4DE19C' : '#FE6F5E'}" size="+20">${(n.type != 'C' ? n.huntingZoneId + '_' + n.templateId : n.templateId)}\t-\tR: ${n.relation} T: ${n.type}</font><br>`,
 						command: `npclist justputmarkonnpc ${n.gameId};npclist`
 					});
 				}
@@ -72,13 +72,13 @@ module.exports = function NpcLIST(mod) {
 	
 	mod.hook('S_LOAD_TOPO', 3, e => {
 		object.zone = e.zone;
-		object.npc = [];
-		sList = [];
+		object.data = [];
+		object.mark = [];
 	});
 	
 	mod.hook('S_RETURN_TO_LOBBY', 'raw', () => {
-		object.npc = [];
-		sList = [];
+		object.data = [];
+		object.mark = [];
 	});
 	
 	mod.hook('S_SPAWN_ME', 3, e => {
@@ -89,15 +89,31 @@ module.exports = function NpcLIST(mod) {
 		object.loc = e.loc;
 	});
 	
+    mod.hook('S_SPAWN_COLLECTION', 4, e => {
+		if (!gData(e.gameId)) {
+			object.data.push({
+				gameId: e.gameId,
+				templateId: e.id,
+				huntingZoneId: null,
+				relation: 0,
+				dist: e.loc.dist3D(object.loc) / 25,
+				vert: Math.abs(e.loc.z - object.loc.z) / 25,
+				type: 'C',
+				loc: e.loc
+			});
+		}
+    })
+	
 	mod.hook('S_SPAWN_NPC', 11, e => {
 		if (!gData(e.gameId)) {
-			object.npc.push({
+			object.data.push({
 				gameId: e.gameId,
 				templateId: e.templateId,
 				huntingZoneId: e.huntingZoneId,
 				relation: e.relation,
 				dist: e.loc.dist3D(object.loc) / 25,
 				vert: Math.abs(e.loc.z - object.loc.z) / 25,
+				type: e.bySpawnEvent ? 'N' : 'E',
 				loc: e.loc
 			});
 		}
@@ -106,29 +122,34 @@ module.exports = function NpcLIST(mod) {
 	mod.hook('S_ACTION_STAGE', 9, e => {
 		let i = gIndex(e.gameId);
 		if (i >= 0) {
-			object.npc[i].dist = e.loc.dist3D(object.loc) / 25;
-			object.npc[i].vert = Math.abs(e.loc.z - object.loc.z) / 25;
-			object.npc[i].loc = e.loc;
+			object.data[i].dist = e.loc.dist3D(object.loc) / 25;
+			object.data[i].vert = Math.abs(e.loc.z - object.loc.z) / 25;
+			object.data[i].loc = e.loc;
 		}
 	});
 	
 	mod.hook('S_NPC_LOCATION', 3, e => {
 		let i = gIndex(e.gameId);
 		if (i >= 0) {
-			object.npc[i].dist = e.loc.dist3D(object.loc) / 25;
-			object.npc[i].vert = Math.abs(e.loc.z - object.loc.z) / 25;
-			object.npc[i].loc = e.loc;
+			object.data[i].dist = e.loc.dist3D(object.loc) / 25;
+			object.data[i].vert = Math.abs(e.loc.z - object.loc.z) / 25;
+			object.data[i].loc = e.loc;
 		}
 	});
 	
 	mod.hook('S_DESPAWN_NPC', 3, e => {
 		let i = gIndex(e.gameId);
-		if (i >= 0) object.npc.splice(i, 1);
+		if (i >= 0) object.data.splice(i, 1);
 		if (sData(e.gameId)) removedMark(e.gameId);
 	});
 	
+    mod.hook('S_DESPAWN_COLLECTION', 2, e => {
+		let i = gIndex(e.gameId);
+		if (i >= 0) object.data.splice(i, 1);
+		if (sData(e.gameId)) removedMark(e.gameId);
+    });
 	function clearMark() {
-		for(let n of sList)
+		for(let n of object.mark)
 			removedMark(n.gameId);
 	}
 	
@@ -137,7 +158,7 @@ module.exports = function NpcLIST(mod) {
 		let d = sData(e);
 		if (i >= 0) {
 			despawnMark(BigInt(d.gameId));
-			sList.splice(i, 1);
+			object.mark.splice(i, 1);
 		}
 	}
 	
@@ -165,18 +186,18 @@ module.exports = function NpcLIST(mod) {
 	}
 
 	function sData(e) {
-		return sList.find(o => o.gameId == e);
+		return object.mark.find(o => o.gameId == e);
 	}
 	
 	function sIndex(e) {
-		return sList.findIndex(o => o.gameId == e);
+		return object.mark.findIndex(o => o.gameId == e);
 	}
 
 	function gData(e) {
-		return object.npc.find(o => o.gameId == e);
+		return object.data.find(o => o.gameId == e);
 	}
 	
 	function gIndex(e) {
-		return object.npc.findIndex(o => o.gameId == e);
+		return object.data.findIndex(o => o.gameId == e);
 	}
 }
