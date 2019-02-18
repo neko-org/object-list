@@ -8,4 +8,4 @@ List npc around you and let you find npc with select to mark.<br><br>
 # List Format "ID - R: X T: X"
 R = Relation<br>
 T = Type N = Normal NPC, E = Event NPC, C = Collector<br>
-# ID Format "huntingZoneId_templateId"
+ID format for type N and E "huntingZoneId_templateId"<br>
