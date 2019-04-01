@@ -1,6 +1,6 @@
 {
 	"files": {
-		"index.js": "247ec87d6be3661840ffd26b936fe5ed14d5a08efb77ea1e157eac40a6d469d8"
+		"index.js": "b99b5b12c05f9477e8914f433a043fc5f078f3fbc2dca46203e5bccce50e9701"
 	},
 	"defs": {
 		"C_ADMIN": 1,
@@ -15,7 +15,7 @@
 		"S_NPC_LOCATION": 3,
 		"S_RETURN_TO_LOBBY": "raw",
 		"S_SPAWN_COLLECTION": 4,
-		"S_SPAWN_DROPITEM": 6,
+		"S_SPAWN_DROPITEM": [6,7],
 		"S_SPAWN_ME": 3,
 		"S_SPAWN_NPC": 11
 	}

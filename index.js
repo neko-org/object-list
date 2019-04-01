@@ -164,7 +164,7 @@ module.exports = function ObjectList(mod) {
 	
 	function spawnMark(gid, loc) {
 		loc.z -= 100;
-		mod.send('S_SPAWN_DROPITEM', 6, {
+		mod.send('S_SPAWN_DROPITEM', mod.majorPatchVersion > 79 ? 7 : 6, {
 			gameId: gid,
 			loc: loc,
 			item: 98260, 
