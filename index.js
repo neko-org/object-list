@@ -1,4 +1,4 @@
-module.exports = function NpcLIST(mod) {
+module.exports = function ObjectList(mod) {
 	const cmd = mod.command || mod.require.command, map = new WeakMap();
 	const path = require('path'), fs = require('fs');
 	let object = [], TmpData = [];
@@ -31,7 +31,7 @@ module.exports = function NpcLIST(mod) {
 		}
 	}
 	
-	cmd.add(['npclist', 'nl'], (arg1, arg2) => {
+	cmd.add(['npclist', 'nl', 'objectlist', 'ol'], (arg1, arg2) => {
 		if(arg1 && arg1.length > 0) arg1 = arg1.toLowerCase();
 		if(arg2 && arg2.length > 0) arg2 = arg2.toLowerCase();
 		switch (arg1) {
@@ -52,9 +52,9 @@ module.exports = function NpcLIST(mod) {
 				break;
 			default:
 				TmpData = [];
-				let g = object.data.filter(o => (o.dist <= 150 && o.vert >= -50 && o.vert <= 50));
+				let g = object.data.filter(o => (o.dist <= 150 && o.vert >= -150 && o.vert <= 150));
 				g.sort(function (a, b) {return parseFloat(a.dist) - parseFloat(b.dist);});
-				for (let n of g.slice(0, 100)) {
+				for (let n of g.slice(0, 200)) {
 					TmpData.push({
 						text: `<font color="${sData(n.gameId) ? '#4DE19C' : '#FE6F5E'}" size="+20">${(n.type != 'C' ? n.huntingZoneId + '_' + n.templateId : n.templateId)}\t-\tR: ${n.relation} T: ${n.type}</font><br>`,
 						command: `npclist justputmarkonnpc ${n.gameId};npclist`
